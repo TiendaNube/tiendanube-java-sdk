@@ -1,5 +1,10 @@
 package com.tiendanube.apisdk;
 
+/**
+ * An exception thrown by the Tienda Nube API SDK.
+ * 
+ * @author mcolotto
+ */
 public class ApiException extends Exception {
 
 	private static final long serialVersionUID = -4155117290800209275L;
