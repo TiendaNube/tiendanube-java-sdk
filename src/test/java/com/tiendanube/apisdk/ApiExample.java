@@ -3,18 +3,13 @@ package com.tiendanube.apisdk;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.tiendanube.apisdk.Api;
-import com.tiendanube.apisdk.ApiDetailedException;
-import com.tiendanube.apisdk.ApiException;
-import com.tiendanube.apisdk.ObjectResponse;
-
-public class ApiTest {
+public class ApiExample {
 
 	public static void main(String[] args) throws JSONException {
 		try {
 			String accessToken = ""; // Replace with the access token
-			int storeId = 0; // Replace with the store id
-			Api api = new Api(accessToken, storeId, "Java SDK test", "matias@tiendanube.com");
+			String storeId = "0"; // Replace with the store id
+			Api api = new Api(new ApiCredentials(storeId, accessToken), "Java SDK test", "matias@tiendanube.com");
 			ObjectResponse store = api.store();
 			System.out.println(store.getResult().getJSONObject("name").get("es_AR"));
 			JSONObject newScript = new JSONObject();

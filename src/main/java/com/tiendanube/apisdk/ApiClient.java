@@ -26,13 +26,11 @@ import org.json.JSONObject;
  */
 class ApiClient {
 	
-	private String accessToken;
 	private String userAgent;
-	private int storeId;
+	private ApiCredentials apiCredentials;
 	
-	ApiClient(String accessToken, int storeId, String appName, String contactEmail) {
-		this.accessToken = accessToken;
-		this.storeId = storeId;
+	ApiClient(ApiCredentials apiCredentials, String appName, String contactEmail) {
+		this.apiCredentials = apiCredentials;
 		this.userAgent = appName + " (" + contactEmail + ")";
 	}
 
@@ -48,8 +46,8 @@ class ApiClient {
 			query = query.substring(0, query.length() - 1);
 		}
 		
-		HttpUriRequest request = new HttpGet("https://api.tiendanube.com/v1/" + storeId + "/" + url + "?" + query);
-		request.addHeader("Authentication", "bearer " + accessToken);
+		HttpUriRequest request = new HttpGet("http://api.tiendanube.com/v1/" + apiCredentials.getStoreId() + "/" + url + "?" + query);
+		request.addHeader("Authentication", "bearer " + apiCredentials.getAccessToken());
 		request.setHeader("User-Agent", userAgent);
 		
 		HttpParams httpParams = new BasicHttpParams();
@@ -70,8 +68,8 @@ class ApiClient {
 	InternalApiResponse delete(String url) throws ApiException {
 		HttpClient client = new DefaultHttpClient();
 		
-		HttpUriRequest request = new HttpDelete("https://api.tiendanube.com/v1/" + storeId + "/" + url);
-		request.addHeader("Authentication", "bearer " + accessToken);
+		HttpUriRequest request = new HttpDelete("https://api.tiendanube.com/v1/" + apiCredentials.getStoreId() + "/" + url);
+		request.addHeader("Authentication", "bearer " + apiCredentials.getAccessToken());
 		request.setHeader("User-Agent", userAgent);
 		
 		try {
@@ -83,12 +81,12 @@ class ApiClient {
 	}
 	
 	InternalApiResponse post(String url, JSONObject object) throws ApiException {
-		HttpPost request = new HttpPost("https://api.tiendanube.com/v1/" + storeId + "/" + url);
+		HttpPost request = new HttpPost("https://api.tiendanube.com/v1/" + apiCredentials.getStoreId() + "/" + url);
 		return this.internalPostPut(request, object);
 	}
 	
 	InternalApiResponse put(String url, JSONObject object) throws ApiException {
-		HttpPut request = new HttpPut("https://api.tiendanube.com/v1/" + storeId + "/" + url);
+		HttpPut request = new HttpPut("https://api.tiendanube.com/v1/" + apiCredentials.getStoreId() + "/" + url);
 		return this.internalPostPut(request, object);
 	}
 	
@@ -96,7 +94,7 @@ class ApiClient {
 			throws ApiException {
 		HttpClient client = new DefaultHttpClient();
 		
-		request.addHeader("Authentication", "bearer " + accessToken);
+		request.addHeader("Authentication", "bearer " + apiCredentials.getAccessToken());
 		request.setHeader("User-Agent", userAgent);
 		StringEntity entity = new StringEntity(object.toString(), ContentType.APPLICATION_JSON);
 		request.setEntity(entity);

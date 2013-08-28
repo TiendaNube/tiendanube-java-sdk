@@ -12,12 +12,12 @@ import com.tiendanube.apisdk.ApiException;
 import com.tiendanube.apisdk.ListResponse;
 import com.tiendanube.apisdk.ObjectResponse;
 
-public class ApiTest2 {
+public class ApiExample2 {
 
 	public static void main(String[] args) throws ApiException, JSONException {
 		String accessToken = ""; // Replace with the access token
-		int storeId = 0; // Replace with the store id
-		Api api = new Api(accessToken, storeId, "Java SDK test 2", "matias@tiendanube.com");
+		String storeId = "0"; // Replace with the store id
+		Api api = new Api(new ApiCredentials(storeId, accessToken), "Java SDK test 2", "matias@tiendanube.com");
 		ObjectResponse store = api.store();
 		System.out.println(store.getResult().getJSONObject("name").get("es_AR"));
 		Map<String, String> additionalParams = Maps.newHashMap();

@@ -21,13 +21,13 @@ public class Api {
 	/**
 	 * Create a new Api object to interact with the Tienda Nube API. Valid only for one store
 	 * and for one app.
-	 * @param accessToken The access token to use.
-	 * @param storeId The store id.
+	 * @param apiCredentials The {@link ApiCredentials} object with the information to access the API.
+	 * This contains the store id and the access token.
 	 * @param appName The name of the application.
 	 * @param contactAddress An email or website to contact the application developer.
 	 */
-	public Api(String accessToken, int storeId, String appName, String contactAddress) {
-		this.client = new ApiClient(accessToken, storeId, appName, contactAddress);
+	public Api(ApiCredentials apiCredentials, String appName, String contactAddress) {
+		this.client = new ApiClient(apiCredentials, appName, contactAddress);
 	}
 	
 	/**
