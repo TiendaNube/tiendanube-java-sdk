@@ -1,5 +1,6 @@
 package com.tiendanube.apisdk;
 
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
@@ -13,7 +14,7 @@ public class ObjectResponse extends ApiResponse {
 	
 	private JSONObject result;
 
-	ObjectResponse(JSONObject result, Map<String, String> responseHeaders) {
+	ObjectResponse(JSONObject result, Map<String, List<String>> responseHeaders) {
 		super(responseHeaders);
 		this.result = result;
 	}

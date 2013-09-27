@@ -1,5 +1,6 @@
 package com.tiendanube.apisdk;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -10,13 +11,13 @@ import java.util.Map;
  */
 public class ApiResponse {
 
-	private Map<String, String> responseHeaders;
+	private Map<String, List<String>> responseHeaders;
 	
-	ApiResponse(Map<String, String> responseHeaders) {
+	ApiResponse(Map<String, List<String>> responseHeaders) {
 		this.responseHeaders = responseHeaders;
 	}
 
-	public String getResponseHeader(String header) {
+	public List<String> getResponseHeader(String header) {
 		if(responseHeaders.containsKey(header)) {
 			return responseHeaders.get(header);
 		}

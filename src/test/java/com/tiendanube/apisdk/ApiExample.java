@@ -9,6 +9,9 @@ public class ApiExample {
 		try {
 			String accessToken = ""; // Replace with the access token
 			String storeId = "0"; // Replace with the store id
+			
+			
+			
 			Api api = new Api(new ApiCredentials(storeId, accessToken), "Java SDK test", "matias@tiendanube.com");
 			ObjectResponse store = api.store();
 			System.out.println(store.getResult().getJSONObject("name").get("es_AR"));

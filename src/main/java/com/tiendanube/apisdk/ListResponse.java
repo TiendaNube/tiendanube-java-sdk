@@ -25,8 +25,10 @@ public class ListResponse extends ApiResponse {
 	private Map<String, String> requestParams;
 
 	ListResponse(JSONArray results, int page, int totalCount, boolean lastPage, 
-			String endpoint, Map<String, String> requestParams, Map<String, String> responseHeaders) throws JSONException {
+			String endpoint, Map<String, String> requestParams, Map<String, List<String>> responseHeaders) throws JSONException {
+		
 		super(responseHeaders);
+		
 		List<JSONObject> resultList = Lists.newArrayList();
 		for(int i = 0; i < results.length(); i++) {
 			resultList.add(results.getJSONObject(i));
