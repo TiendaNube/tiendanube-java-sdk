@@ -8,7 +8,7 @@ public class ApiExample {
 	public static void main(String[] args) throws JSONException {
 		try {
 			
-			String accessToken = "46a971bbf4d655d8e2d91db1772c9410104315ae"; // Replace with the access token
+			String accessToken = "f3f5641aca09548c1f8c1fa468b512ddbbbf0bfb"; // Replace with the access token
 			String storeId = "46"; // Replace with the store id
 			
 			Api api = new Api(new ApiCredentials(storeId, accessToken), "Java SDK test", "matias@tiendanube.com");

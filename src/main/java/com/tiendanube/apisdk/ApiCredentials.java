@@ -20,18 +20,33 @@ public class ApiCredentials implements Serializable {
 	private String appSecret;
 
 	/**
-	 * A POJO containing credentials
+	 * Factory method to get an instance of API Credentials that will be used of
+	 * authentication
 	 */
-	public ApiCredentials(String appId, String appSecret) {
-		this.appId = appId;
-		this.appSecret = appSecret;
-		this.storeId = null;
-		this.accessToken = null;
+	public static ApiCredentials prepareCredentials(String appId,
+			String appSecret) {
+		ApiCredentials credentials = new ApiCredentials();
+		credentials.appId = appId;
+		credentials.appSecret = appSecret;
+		return credentials;
+	}
+
+	/**
+	 * This methods create credentials directly, provided that the user already
+	 * have the storeId and the access token
+	 */
+	public ApiCredentials(String storeId, String accessToken) {
+		this.storeId = storeId;
+		this.accessToken = accessToken;
+	}
+
+	private ApiCredentials() {
 	}
 
 	@Override
 	public String toString() {
-		return "StoreID: " + storeId + "\nAccess Token: " + accessToken;
+		return "AppId: " + appId + "\nAppSecret: " + appSecret + "\nStoreID: "
+				+ storeId + "\nAccess Token: " + accessToken;
 	}
 
 	public String getStoreId() {

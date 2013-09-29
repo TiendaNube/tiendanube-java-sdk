@@ -36,10 +36,15 @@ public class Api {
 		this.client = new ApiClient(apiCredentials, appName, contactAddress);
 	}
 	
-	
-	public InternalApiResponse authenticate(String code) throws ApiException {
-		return client.authenticate(code);
+	public Api(ApiCredentials apiCredentials) {
+		this(apiCredentials, "", "");
 	}
+
+	public void authenticate(String code) throws ApiException {
+		client.authenticate(code);
+
+	}
+
 
 	/**
 	 * Accesses an endpoint that lists objects.
@@ -174,7 +179,7 @@ public class Api {
 			}
 
 			InternalApiResponse response = client.get(url, additionalParams);
-			
+
 			try {
 				validateResponse(response);
 			} catch (ApiNotFoundException e) {

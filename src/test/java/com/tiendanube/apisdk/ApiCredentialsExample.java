@@ -5,18 +5,19 @@ import org.json.JSONException;
 public class ApiCredentialsExample {
 
 	public static void main(String[] args) throws ApiException, JSONException {
-		String code = ""; // Replace with the OAuth 2 authentication code
-		String appId = ""; // Replace with your application's client id
-		String appSecret = ""; // Replace with your application's client secret
 		
-		ApiCredentials credentials = new ApiCredentials(appId, appSecret);
-		ApiClient apiClient = new ApiClient(credentials);
-		apiClient.authenticate(code);
 		
+		String appId = "16"; // Replace with your application's client id
+		String appSecret = "4Why0fZjPAVKKKLstNe1iYYTXV8lIPBAbPExn3BLCTo8RU8v"; // Replace with your application's client secret
+		String code = "f8293eeb5fb6dbb054f4e56f5cefc99bd00f05c0";
+		
+		ApiCredentials credentials = ApiCredentials.prepareCredentials(appId, appSecret);
+		Api api = new Api(credentials);
+		api.authenticate(code);
 		
 		
 		System.out.println("The store id of the store whose code was specified is " + credentials.getStoreId());
-		Api api = new Api(credentials, "Java SDK test 2", "matias@tiendanube.com");
+		
 		ObjectResponse store = api.store();
 		System.out.println("The store that we got authorization for is " + store.getResult().getJSONObject("name").get("es_AR"));
 	}
