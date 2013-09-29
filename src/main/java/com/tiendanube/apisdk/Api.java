@@ -35,6 +35,11 @@ public class Api {
 			String contactAddress) {
 		this.client = new ApiClient(apiCredentials, appName, contactAddress);
 	}
+	
+	
+	public InternalApiResponse authenticate(String code) throws ApiException {
+		return client.authenticate(code);
+	}
 
 	/**
 	 * Accesses an endpoint that lists objects.
