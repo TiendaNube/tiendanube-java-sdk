@@ -42,7 +42,6 @@ public class Api {
 
 	public void authenticate(String code) throws ApiException {
 		client.authenticate(code);
-
 	}
 
 
@@ -211,6 +210,7 @@ public class Api {
 
 			return new ObjectResponse(new JSONObject(response.getResponse()),
 					response.getHeaders());
+			
 		} catch (JSONException e) {
 			throw new ApiException("Invalid JSON responded by API", e);
 		}

@@ -21,9 +21,10 @@ class ApiClient {
 
 	private String userAgent;
 	private ApiCredentials apiCredentials;
+	private static final String API_URL = "https://api.tiendanube.com/v1/";
+	private static final String API_AUTH_URL = "http://www.tiendanube.com/apps/authorize/token";
 
-	ApiClient(ApiCredentials apiCredentials, String appName,
-			String contactEmail) {
+	ApiClient(ApiCredentials apiCredentials, String appName, String contactEmail) {
 		this.apiCredentials = apiCredentials;
 		this.userAgent = appName + " (" + contactEmail + ")";
 	}
@@ -37,34 +38,33 @@ class ApiClient {
 	public InternalApiResponse get(String url, Map<String, String> params)
 			throws ApiException {
 		String query = parametersToQuery(params);
-		return internalAuthenticatedHttpRequest(
-				"https://api.tiendanube.com/v1/" + apiCredentials.getStoreId()
-						+ "/" + url + "?" + query, null, "GET");
+		return internalAuthenticatedHttpRequest(prepareApiUrl(url, query),
+				null, "GET");
 	}
 
 	public InternalApiResponse post(String url, JSONObject object)
 			throws ApiException, ApiException {
-		return internalAuthenticatedHttpRequest(url, object.toString(), "POST");
+		return internalAuthenticatedHttpRequest(prepareApiUrl(url), object.toString(), "POST");
 	}
 
 	public InternalApiResponse put(String url, JSONObject object)
 			throws ApiException, ApiException {
-		return internalAuthenticatedHttpRequest(url, object.toString(), "PUT");
+		return internalAuthenticatedHttpRequest(prepareApiUrl(url), object.toString(), "PUT");
 
 	}
 
 	public InternalApiResponse delete(String url) throws ApiException,
 			ApiException {
-		return internalAuthenticatedHttpRequest(url, "", "DELETE");
+		return internalAuthenticatedHttpRequest(prepareApiUrl(url), "", "DELETE");
 	}
 
 	public InternalApiResponse authenticate(String code) throws ApiException {
 
-		String url = "http://www.tiendanube.com/apps/authorize/token";
+		
 		Map<String, String> authParameters = prepareAuthenticationParameters(code);
 		String query = parametersToQuery(authParameters);
 
-		InternalApiResponse apiResponse = internalHttpRequest(url, query,
+		InternalApiResponse apiResponse = internalHttpRequest(API_AUTH_URL, query,
 				"POST", false);
 
 		if (apiResponse.getStatusCode() != HttpStatus.SC_OK) {
@@ -76,7 +76,7 @@ class ApiClient {
 			content = new JSONObject(apiResponse.getResponse());
 			apiCredentials.setAccessToken(content.getString("access_token"));
 			apiCredentials.setStoreId(content.getString("user_id"));
-			
+
 			return apiResponse;
 
 		} catch (JSONException e) {
@@ -124,13 +124,9 @@ class ApiClient {
 				writer.flush();
 			}
 
-			// System.out.println(connection.getRequestProperty("Authentication"));
-			// System.out.println(connection.getRequestProperty("User-Agent"));
-			// System.out.println(connection.getRequestProperty("content-type"));
-
 		} catch (IOException e) {
 			throw new ApiException("Problem while trying to " + HttpRequestType
-					+ "the URL " + url, e);
+					+ " the URL " + url, e);
 		}
 
 		return new InternalApiResponse(connection);
@@ -153,6 +149,14 @@ class ApiClient {
 		authParameters.put("grant_type", "authorization_code");
 		authParameters.put("code", code);
 		return authParameters;
+	}
+
+	private String prepareApiUrl(String url, String query) {
+		return API_URL + apiCredentials.getStoreId() + "/" + url + "?" + query;
+	}
+
+	private String prepareApiUrl(String url) {
+		return API_URL + apiCredentials.getStoreId() + "/" + url;
 	}
 
 }

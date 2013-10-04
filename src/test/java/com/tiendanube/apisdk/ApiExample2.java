@@ -16,15 +16,19 @@ public class ApiExample2 {
 
 	public static void main(String[] args) throws ApiException, JSONException {
 		
-		String accessToken = "46a971bbf4d655d8e2d91db1772c9410104315ae"; // Replace with the access token
+		String accessToken = "77047d2fa3eeacf8263916fd43196aa46bbf79f4"; // Replace with the access token
 		String storeId = "46"; // Replace with the store id
 		
 		Api api = new Api(new ApiCredentials(storeId, accessToken), "Java SDK test 2", "matias@tiendanube.com");
 		ObjectResponse store = api.store();
-		System.out.println(store.getResult().getJSONObject("name").get("es_AR"));
+		System.out.println(store.getResult().getJSONObject("name").get("es"));
+		
+		
 		Map<String, String> additionalParams = Maps.newHashMap();
 		additionalParams.put("per_page", "200");
+		
 		ListResponse response = api.list("products", additionalParams);
+		
 		do {
 			List<JSONObject> results = response.getResults();
 			for(JSONObject result : results) {

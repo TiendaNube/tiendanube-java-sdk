@@ -36,9 +36,6 @@ class InternalApiResponse {
 
 			// read all headers
 			this.headers = connection.getHeaderFields();
-			
-			System.out.println(this.statusCode);
-			System.out.println(this.headers);
 
 			// read text response
 			reader = new BufferedReader(new InputStreamReader(

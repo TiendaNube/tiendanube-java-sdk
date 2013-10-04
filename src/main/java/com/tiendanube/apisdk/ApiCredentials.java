@@ -31,11 +31,7 @@ public class ApiCredentials implements Serializable {
 		return credentials;
 	}
 
-	/**
-	 * This methods create credentials directly, provided that the user already
-	 * have the storeId and the access token
-	 */
-	public ApiCredentials(String storeId, String accessToken) {
+	ApiCredentials(String storeId, String accessToken) {
 		this.storeId = storeId;
 		this.accessToken = accessToken;
 	}
