@@ -76,7 +76,6 @@ class ApiClient {
 			content = new JSONObject(apiResponse.getResponse());
 			apiCredentials.setAccessToken(content.getString("access_token"));
 			apiCredentials.setStoreId(content.getString("user_id"));
-
 			return apiResponse;
 
 		} catch (JSONException e) {

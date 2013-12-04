@@ -8,7 +8,7 @@ public class ApiExample {
 	public static void main(String[] args) throws JSONException {
 		try {
 			
-			String accessToken = "77047d2fa3eeacf8263916fd43196aa46bbf79f4"; // Replace with the access token
+			String accessToken = "7eff690cea51c4fbc35271d53b5dd33d89e1ac2c"; // Replace with the access token
 			String storeId = "46"; // Replace with the store id
 			Api api = new Api(new ApiCredentials(storeId, accessToken), "Java SDK test", "matias@tiendanube.com");
 			
@@ -17,6 +17,9 @@ public class ApiExample {
 			ObjectResponse store = api.store();
 			System.out.println("El dueño de la store es: " + store.getResult().getJSONObject("name").get("es") );
 		
+			Object mainLanguage = api.store().getResult().getString("main_language");
+			System.out.println("El idioma principal de la tiendas es: " + mainLanguage);
+			
 			
 			//create a script json object
 			JSONObject newScript = new JSONObject();

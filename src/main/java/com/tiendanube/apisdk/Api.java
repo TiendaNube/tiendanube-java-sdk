@@ -1,5 +1,6 @@
 package com.tiendanube.apisdk;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.http.HttpStatus;
@@ -35,7 +36,7 @@ public class Api {
 			String contactAddress) {
 		this.client = new ApiClient(apiCredentials, appName, contactAddress);
 	}
-	
+
 	public Api(ApiCredentials apiCredentials) {
 		this(apiCredentials, "", "");
 	}
@@ -43,7 +44,6 @@ public class Api {
 	public void authenticate(String code) throws ApiException {
 		client.authenticate(code);
 	}
-
 
 	/**
 	 * Accesses an endpoint that lists objects.
@@ -56,6 +56,7 @@ public class Api {
 	 */
 	public ListResponse list(String endpoint,
 			Map<String, String> additionalParams) throws ApiException {
+
 		try {
 			if (additionalParams == null) {
 				additionalParams = Maps.newHashMap();
@@ -69,16 +70,25 @@ public class Api {
 
 			InternalApiResponse response = client.get(endpoint,
 					additionalParams);
+
 			validateResponse(response);
 
 			int page = Integer.valueOf(additionalParams.get("page"));
 			int perPage = Integer.valueOf(additionalParams.get("per_page"));
-			int totalCount = Integer.valueOf(response
-					.getHeader("X-Total-Count").get(0));
+
+			List<String> xTotalCount = response.getHeader("X-Total-Count");
+			// Fix for Google App Engine, otherwise, X Total Count would be null
+			// and then we would have null point exception ---> TODO: make getHeader case insensitive
+			if (xTotalCount == null) {
+				xTotalCount = response.getHeader("x-total-count");
+			}
+			
+			int totalCount = Integer.valueOf(xTotalCount.get(0));
 
 			return new ListResponse(new JSONArray(response.getResponse()),
 					page, totalCount, page * perPage >= totalCount, endpoint,
 					additionalParams, response.getHeaders());
+
 		} catch (JSONException e) {
 			throw new ApiException("Invalid JSON responded by API", e);
 		}
@@ -210,7 +220,7 @@ public class Api {
 
 			return new ObjectResponse(new JSONObject(response.getResponse()),
 					response.getHeaders());
-			
+
 		} catch (JSONException e) {
 			throw new ApiException("Invalid JSON responded by API", e);
 		}

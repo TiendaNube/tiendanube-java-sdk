@@ -1,7 +1,6 @@
 package com.tiendanube.apisdk;
 
 import java.util.Iterator;
-import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -9,8 +8,9 @@ import org.json.JSONObject;
 public class WebhookTest {
 	public static void main(String[] args) throws JSONException, ApiException {
 
-		String accessToken = "f6499a87be1177a3ce4f4eac17bedee1d87410da";
+		String accessToken = "9b8583bee6c22099a79f34dc61a55f09e6268649";
 		String storeId = "46"; // Replace with the store id
+		
 		Api api = new Api(new ApiCredentials(storeId, accessToken),
 				"Java SDK test", "matias@tiendanube.com");
 
@@ -18,9 +18,8 @@ public class WebhookTest {
 		JSONObject updateProductWebhook = new JSONObject();
 		updateProductWebhook.put("url", "http://www.testurl.com.ar");
 		updateProductWebhook.put("event", "product/updated");
-		ObjectResponse createdWebhook = api.create("webhooks",
-				updateProductWebhook);
-		System.out.println(createdWebhook);
+//		ObjectResponse createdWebhook = api.create("webhooks",
+//				updateProductWebhook);
 
 		// finally, list all webhooks for the app
 		ListResponse webhookList = api.list("webhooks");

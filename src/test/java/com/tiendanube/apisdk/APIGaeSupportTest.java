@@ -10,7 +10,7 @@ public class APIGaeSupportTest {
 		
 		String appId = "16"; // Replace with your application's client id
 		String appSecret = "4Why0fZjPAVKKKLstNe1iYYTXV8lIPBAbPExn3BLCTo8RU8v"; // Replace with your application's client secret
-		String code = "d526109bbc686f345bad31455a05208546fed652";
+		String code = "d9a26e85232e3b91a89b1de52ba3aec1a7650e69";
 		
 		
 		//authenticate API

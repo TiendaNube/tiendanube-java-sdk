@@ -31,7 +31,7 @@ public class ApiCredentials implements Serializable {
 		return credentials;
 	}
 
-	ApiCredentials(String storeId, String accessToken) {
+	public ApiCredentials(String storeId, String accessToken) {
 		this.storeId = storeId;
 		this.accessToken = accessToken;
 	}
