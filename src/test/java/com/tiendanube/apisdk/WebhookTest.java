@@ -8,8 +8,8 @@ import org.json.JSONObject;
 public class WebhookTest {
 	public static void main(String[] args) throws JSONException, ApiException {
 
-		String accessToken = "9b8583bee6c22099a79f34dc61a55f09e6268649";
-		String storeId = "46"; // Replace with the store id
+		String accessToken = "";
+		String storeId = ""; // Replace with the store id
 		
 		Api api = new Api(new ApiCredentials(storeId, accessToken),
 				"Java SDK test", "matias@tiendanube.com");

@@ -35,6 +35,12 @@ public class ApiCredentials implements Serializable {
 		this.storeId = storeId;
 		this.accessToken = accessToken;
 	}
+	
+	public ApiCredentials(Long storeId, String accessToken) {
+		this(storeId.toString(), accessToken);
+	}
+	
+	
 
 	private ApiCredentials() {
 	}

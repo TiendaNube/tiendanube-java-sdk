@@ -1,6 +1,7 @@
 package com.tiendanube.apisdk;
 
 import java.util.List;
+
 import java.util.Map;
 
 import org.apache.http.HttpStatus;
