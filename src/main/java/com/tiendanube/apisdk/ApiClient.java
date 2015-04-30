@@ -22,7 +22,7 @@ class ApiClient {
 	private String userAgent;
 	private ApiCredentials apiCredentials;
 	private static final String API_URL = "https://api.tiendanube.com/v1/";
-	private static final String API_AUTH_URL = "http://www.tiendanube.com/apps/authorize/token";
+	private static final String API_AUTH_URL = "https://www.tiendanube.com/apps/authorize/token";
 
 	ApiClient(ApiCredentials apiCredentials, String appName, String contactEmail) {
 		this.apiCredentials = apiCredentials;
