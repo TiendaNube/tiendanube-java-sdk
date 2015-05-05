@@ -15,14 +15,20 @@ import com.tiendanube.apisdk.ObjectResponse;
 public class ApiExample2 {
 
 	public static void main(String[] args) throws ApiException, JSONException {
+		
 		String accessToken = ""; // Replace with the access token
-		String storeId = "0"; // Replace with the store id
+		String storeId = ""; // Replace with the store id
+		
 		Api api = new Api(new ApiCredentials(storeId, accessToken), "Java SDK test 2", "matias@tiendanube.com");
 		ObjectResponse store = api.store();
-		System.out.println(store.getResult().getJSONObject("name").get("es_AR"));
+		System.out.println(store.getResult().getJSONObject("name").get("es"));
+		
+		
 		Map<String, String> additionalParams = Maps.newHashMap();
 		additionalParams.put("per_page", "200");
+		
 		ListResponse response = api.list("products", additionalParams);
+		
 		do {
 			List<JSONObject> results = response.getResults();
 			for(JSONObject result : results) {

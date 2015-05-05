@@ -2,15 +2,12 @@ package com.tiendanube.apisdk;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-
-import com.google.common.collect.Maps;
+import java.util.Map.Entry;
 
 /**
  * Represents a response from the API.
@@ -18,44 +15,51 @@ import com.google.common.collect.Maps;
  * @author mcolotto
  */
 class InternalApiResponse {
-	
+
 	private int statusCode;
 	private String response;
-	private Map<String, String> headers;
+	private Map<String, List<String>> headers;
 
-	InternalApiResponse(HttpResponse response) throws ApiException {
-		InputStream stream = null;
+
+	public InternalApiResponse(HttpURLConnection connection)
+			throws ApiException {
+
+		// start reading the answer
+		String auxLine;
+		StringBuffer auxResponse = new StringBuffer();
+		BufferedReader reader = null;
 
 		try {
-			HttpEntity entity = response.getEntity();
-			stream = entity.getContent();
-			StringBuffer responseBuffer = new StringBuffer();
-			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
-			String line;
-			while((line = bufferedReader.readLine()) != null) {
-				responseBuffer.append(line);
-				responseBuffer.append('\r');
-			}
 			
-			this.response = responseBuffer.toString();
-			this.statusCode = response.getStatusLine().getStatusCode();
-		
-			this.headers = Maps.newHashMap();
-			for(Header h : response.getAllHeaders()) {
-				this.headers.put(h.getName(), h.getValue());
+			// read status code
+			this.statusCode = connection.getResponseCode();
+
+			// read all headers
+			this.headers = connection.getHeaderFields();
+
+			// read text response
+			reader = new BufferedReader(new InputStreamReader(
+					connection.getInputStream()));
+			while ((auxLine = reader.readLine()) != null) {
+				auxResponse.append(auxLine);
 			}
-			
-		} catch(IOException e) {
+			this.response = auxResponse.toString();
+
+		} catch (IOException e) {
 			// If this happens, it's probably a connection error
 			throw new ApiException(e);
 		} finally {
 			try {
-				stream.close();
+				if(reader != null) {
+					reader.close();
+				}
 			} catch (IOException e) {
-				// We are doomed.
+				// May day, may day!
 				throw new ApiException(e);
 			}
+
 		}
+
 	}
 
 	public int getStatusCode() {
@@ -65,16 +69,45 @@ class InternalApiResponse {
 	public String getResponse() {
 		return response;
 	}
-	
-	public String getHeader(String header) {
-		if(headers.containsKey(header)) {
+
+	public List<String> getHeader(String header) {
+		if (headers.containsKey(header)) {
 			return headers.get(header);
 		}
 		return null;
 	}
-	
-	public Map<String, String> getHeaders() {
+
+	public Map<String, List<String>> getHeaders() {
 		return headers;
 	}
-	
+
+	@Override
+	public String toString() {
+
+		StringBuffer buff = new StringBuffer();
+
+		buff.append("Status Code: ");
+		buff.append(this.statusCode);
+		buff.append("\n\n");
+		buff.append("Headers:\n");
+		
+		if(this.headers != null) {
+			Iterator<Entry<String, List<String>>> iterator = this.headers.entrySet()
+					.iterator();
+
+			while (iterator.hasNext()) {
+				Entry<String, List<String>> next = iterator.next();
+				buff.append(next.getKey() + " " + next.getValue());
+				buff.append("\n");
+			}
+			buff.append("\n\n");
+		}
+		
+		buff.append("Response:\n");
+		buff.append(this.response);
+		
+		return buff.toString();
+
+	}
+
 }

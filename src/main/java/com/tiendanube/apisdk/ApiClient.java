@@ -1,111 +1,161 @@
 package com.tiendanube.apisdk;
 
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
+import org.apache.http.HttpStatus;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * This class is an internal client to interact with the API.
- * Automatically handles converting to/from JSON.
+ * This class is an internal client to interact with the API. Automatically
+ * handles converting to/from JSON.
  * 
  * @author mcolotto
  */
 class ApiClient {
-	
+
 	private String userAgent;
 	private ApiCredentials apiCredentials;
-	
+	private static final String API_URL = "https://api.tiendanube.com/v1/";
+	private static final String API_AUTH_URL = "https://www.tiendanube.com/apps/authorize/token";
+
 	ApiClient(ApiCredentials apiCredentials, String appName, String contactEmail) {
 		this.apiCredentials = apiCredentials;
 		this.userAgent = appName + " (" + contactEmail + ")";
 	}
 
-	InternalApiResponse get(String url, Map<String, String> params) throws ApiException {
-		HttpClient client = new DefaultHttpClient();
+	ApiClient(ApiCredentials apiCredentials) {
+		this(apiCredentials, "", "");
+	}
+
+	// Below get, post, put, delete and authenticate
+
+	public InternalApiResponse get(String url, Map<String, String> params)
+			throws ApiException {
+		String query = parametersToQuery(params);
+		return internalAuthenticatedHttpRequest(prepareApiUrl(url, query),
+				null, "GET");
+	}
+
+	public InternalApiResponse post(String url, JSONObject object)
+			throws ApiException, ApiException {
+		return internalAuthenticatedHttpRequest(prepareApiUrl(url), object.toString(), "POST");
+	}
+
+	public InternalApiResponse put(String url, JSONObject object)
+			throws ApiException, ApiException {
+		return internalAuthenticatedHttpRequest(prepareApiUrl(url), object.toString(), "PUT");
+
+	}
+
+	public InternalApiResponse delete(String url) throws ApiException,
+			ApiException {
+		return internalAuthenticatedHttpRequest(prepareApiUrl(url), "", "DELETE");
+	}
+
+	public InternalApiResponse authenticate(String code) throws ApiException {
+
 		
+		Map<String, String> authParameters = prepareAuthenticationParameters(code);
+		String query = parametersToQuery(authParameters);
+
+		InternalApiResponse apiResponse = internalHttpRequest(API_AUTH_URL, query,
+				"POST", false);
+
+		if (apiResponse.getStatusCode() != HttpStatus.SC_OK) {
+			throw new ApiDetailedException(apiResponse);
+		}
+
+		JSONObject content;
+		try {
+			content = new JSONObject(apiResponse.getResponse());
+			apiCredentials.setAccessToken(content.getString("access_token"));
+			apiCredentials.setStoreId(content.getString("user_id"));
+			return apiResponse;
+
+		} catch (JSONException e) {
+			throw new ApiException(
+					"Problem while trying to authenticate with credentials: "
+							+ apiCredentials.toString());
+		}
+
+	}
+
+	private InternalApiResponse internalAuthenticatedHttpRequest(String url,
+			String body, String HttpRequestType) throws ApiException {
+		return internalHttpRequest(url, body, HttpRequestType, true);
+	}
+
+	private InternalApiResponse internalHttpRequest(String url, String body,
+			String HttpRequestType, Boolean authenticated) throws ApiException {
+
+		HttpURLConnection connection = null;
+		OutputStreamWriter writer = null;
+		URL urlObject = null;
+
+		try {
+
+			// set connection properties
+			urlObject = new URL(url);
+			connection = (HttpURLConnection) urlObject.openConnection();
+			connection.setRequestMethod(HttpRequestType);
+			connection.setDoOutput(true);
+			connection.setDoInput(true);
+
+			// if we are doing an authenticated request, then set credentials
+			if (authenticated) {
+				connection.setRequestProperty("Authentication", "bearer "
+						+ apiCredentials.getAccessToken());
+				connection.setRequestProperty("User-Agent", userAgent);
+				connection.setRequestProperty("Content-Type",
+						"application/json; charset=utf-8");
+			}
+
+			// if there's a body to write, do it
+			if (body != null && !body.isEmpty()) {
+				writer = new OutputStreamWriter(connection.getOutputStream());
+				writer.write(body);
+				writer.flush();
+			}
+
+		} catch (IOException e) {
+			throw new ApiException("Problem while trying to " + HttpRequestType
+					+ " the URL " + url, e);
+		}
+
+		return new InternalApiResponse(connection);
+
+	}
+
+	private String parametersToQuery(Map<String, String> params) {
 		String query = "";
-		for(String key : params.keySet()) {
+		for (String key : params.keySet()) {
 			String value = params.get(key);
 			query = query + key + "=" + value + "&";
 		}
-		if(query.length() > 0) {
-			query = query.substring(0, query.length() - 1);
-		}
-		
-		HttpUriRequest request = new HttpGet("http://api.tiendanube.com/v1/" + apiCredentials.getStoreId() + "/" + url + "?" + query);
-		request.addHeader("Authentication", "bearer " + apiCredentials.getAccessToken());
-		request.setHeader("User-Agent", userAgent);
-		
-		HttpParams httpParams = new BasicHttpParams();
-		for(String key : params.keySet()) {
-			String value = params.get(key);
-			httpParams.setParameter(key, value);
-		}
-		request.setParams(httpParams);
-		
-		try {
-			HttpResponse response = client.execute(request);
-			return new InternalApiResponse(response);
-		} catch(IOException e) {
-			throw new ApiException("Problem while trying to GET the URL " + url, e);
-		}
+		return query;
 	}
-	
-	InternalApiResponse delete(String url) throws ApiException {
-		HttpClient client = new DefaultHttpClient();
-		
-		HttpUriRequest request = new HttpDelete("https://api.tiendanube.com/v1/" + apiCredentials.getStoreId() + "/" + url);
-		request.addHeader("Authentication", "bearer " + apiCredentials.getAccessToken());
-		request.setHeader("User-Agent", userAgent);
-		
-		try {
-			HttpResponse response = client.execute(request);
-			return new InternalApiResponse(response);
-		} catch(IOException e) {
-			throw new ApiException("Problem while trying to DELETE the URL " + url, e);
-		}
+
+	private Map<String, String> prepareAuthenticationParameters(String code) {
+		HashMap<String, String> authParameters = new HashMap<String, String>();
+		authParameters.put("client_id", apiCredentials.getAppId());
+		authParameters.put("client_secret", apiCredentials.getAppSecret());
+		authParameters.put("grant_type", "authorization_code");
+		authParameters.put("code", code);
+		return authParameters;
 	}
-	
-	InternalApiResponse post(String url, JSONObject object) throws ApiException {
-		HttpPost request = new HttpPost("https://api.tiendanube.com/v1/" + apiCredentials.getStoreId() + "/" + url);
-		return this.internalPostPut(request, object);
+
+	private String prepareApiUrl(String url, String query) {
+		return API_URL + apiCredentials.getStoreId() + "/" + url + "?" + query;
 	}
-	
-	InternalApiResponse put(String url, JSONObject object) throws ApiException {
-		HttpPut request = new HttpPut("https://api.tiendanube.com/v1/" + apiCredentials.getStoreId() + "/" + url);
-		return this.internalPostPut(request, object);
+
+	private String prepareApiUrl(String url) {
+		return API_URL + apiCredentials.getStoreId() + "/" + url;
 	}
-	
-	InternalApiResponse internalPostPut(HttpEntityEnclosingRequestBase request, JSONObject object) 
-			throws ApiException {
-		HttpClient client = new DefaultHttpClient();
-		
-		request.addHeader("Authentication", "bearer " + apiCredentials.getAccessToken());
-		request.setHeader("User-Agent", userAgent);
-		StringEntity entity = new StringEntity(object.toString(), ContentType.APPLICATION_JSON);
-		request.setEntity(entity);
-		
-		try {
-			HttpResponse response = client.execute(request);
-			return new InternalApiResponse(response);
-		} catch(IOException e) {
-			throw new ApiException("Problem while trying to " + request.getMethod() + 
-									" the URL " + request.getURI().toString(), e);
-		}
-	}
-	
+
 }
